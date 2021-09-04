@@ -45,7 +45,7 @@ class Grid:
         if grid == None:
             self.width = w
             self.height = h
-            self.grid = [[Cell(0) for _ in range(width)] for _ in range(height)]
+            self.grid = [[Cell(0) for _ in range(w)] for _ in range(h)]
         else:
             self.generate_grid_from_array(grid)
 
