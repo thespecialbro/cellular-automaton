@@ -13,6 +13,7 @@ dead_color =      ( 50,  50,  50)
 highlight_color = (128, 128,   0)
 highlight_color2= (200, 200,   0)
 line_color =      (100, 100, 100)
+text_color =      (  0, 255,   0)
 
 FPS = 60
 Frames = pygame.time.Clock()
@@ -30,7 +31,7 @@ grid_width = 50 # how many cells wide the grid is
 grid_height = 50 # how many cells tall the grid is
 cell_w = disp_d[0]/grid_width
 cell_h = disp_d[1]/grid_height
-GRID = cells.Grid(w=grid_width, h=grid_height)
+GRID = None
 
 def highlight_square(x, y):
     # highlight the square the mouse cursor is within
@@ -41,14 +42,23 @@ def highlight_square(x, y):
     if GRID.grid[hy][hx].state: # slightly diff highlight color when over alive squares
         color = highlight_color2
     pygame.draw.rect(DISP, color, (hx*cell_w, hy*cell_h, cell_w, cell_h))
-    return (hx, hy)
+    return (hx, hy) # grid coordinates of the highlighted square
 
-# game loop =======
+
 exit = False
 running = False # whether the cells sim is running
 frame_count = 0
 generation_count = 0 # how many generations have passed in the simulation
 
+def reset_grid():
+    global GRID
+    global generation_count
+    GRID = cells.Grid(w=grid_width, h=grid_height)
+    generation_count = 0
+
+reset_grid() # initialize the grid of cells for the first time
+
+# main loop =======
 while not exit:
     frame_count += 1
     for event in pygame.event.get():
@@ -58,6 +68,10 @@ while not exit:
             k = pygame.key.get_pressed()
             if k[pygame.K_SPACE]:
                 running = not running # play/pause the cell simulation
+            if k[pygame.K_r]:
+                print('Resetting grid.')
+                reset_grid()
+                running = False
 
     for i in range(grid_height):
         for j in range(grid_width):
@@ -89,7 +103,7 @@ while not exit:
     for i in range(grid_width + 1):
         pygame.draw.line(DISP, line_color, (cell_w*i, 0), (cell_w*i, disp_d[1]))
 
-    label = text_font.render('{}'.format(generation_count), 2, (0, 255, 0))
+    label = text_font.render('{}'.format(generation_count), 2, text_color)
     DISP.blit(label, (5, 5))
 
     pygame.display.update()
