@@ -21,20 +21,16 @@ disp_d = (500, 500)
 DISP = pygame.display.set_mode(disp_d)
 DISP.fill(dead_color)
 pygame.display.set_caption('Cellular automaton')
+
+text_font = pygame.font.SysFont('monospace', 14)
 # ---------------------------
 
+# life setup
 grid_width = 50 # how many cells wide the grid is
 grid_height = 50 # how many cells tall the grid is
 cell_w = disp_d[0]/grid_width
 cell_h = disp_d[1]/grid_height
 GRID = cells.Grid(w=grid_width, h=grid_height)
-
-# draw grid lines
-for i in range(grid_height + 1):
-    pygame.draw.line(DISP, line_color, (0, cell_h*i), (disp_d[0], cell_h*i))
-
-for i in range(grid_width + 1):
-    pygame.draw.line(DISP, line_color, (cell_w*i, 0), (cell_w*i, disp_d[1]))
 
 def highlight_square(x, y):
     # highlight the square the mouse cursor is within
@@ -51,6 +47,7 @@ def highlight_square(x, y):
 exit = False
 running = False # whether the cells sim is running
 frame_count = 0
+generation_count = 0 # how many generations have passed in the simulation
 
 while not exit:
     frame_count += 1
@@ -72,23 +69,35 @@ while not exit:
     if running and frame_count % 5 == 0:
         # simulate the cells
         GRID.step()
+        generation_count += 1
 
     # highlight square the mouse is over
     mpos = pygame.mouse.get_pos()
-    highltd = (0, 0)
+    highltd = (0, 0) # grid coordinates of the highlighted square
     if 500 > mpos[0] > 0 and 500 > mpos[1] > 0:
         highltd = highlight_square(mpos[0], mpos[1])
         if pygame.mouse.get_pressed()[0]:
             GRID.grid[highltd[1]][highltd[0]].state = 1
+        elif pygame.mouse.get_pressed()[2]:
+            GRID.grid[highltd[1]][highltd[0]].state = 0
 
+
+    # draw grid lines
+    for i in range(grid_height + 1):
+        pygame.draw.line(DISP, line_color, (0, cell_h*i), (disp_d[0], cell_h*i))
+
+    for i in range(grid_width + 1):
+        pygame.draw.line(DISP, line_color, (cell_w*i, 0), (cell_w*i, disp_d[1]))
+
+    label = text_font.render('{}'.format(generation_count), 2, (0, 255, 0))
+    DISP.blit(label, (5, 5))
 
     pygame.display.update()
-    
-
     Frames.tick(FPS)
 # =================
 
 # exit sequence
-print('Exiting')
+print('Exiting.')
+print('Generations passed:', generation_count)
 pygame.quit()
 sys.exit()
